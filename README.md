@@ -11,3 +11,22 @@ source venv/bin/activate
 pip install -r requirements.txt
 mkdir registros
 ```
+
+Para iniciar o serviço basta executar o script 'run.py' e sera iniciado no modo "development" por padrao. Para alterar a instancia de execuçao indique a instancia desejada passando como paramentro na execuçao do script.
+
+```bash
+python3 run.py test 
+```
+
+Para testar a recepçao de requisiçoes pode-se executar o script de teste disponivel no projeto ou utilizar uma ferramenta como a [RESTED](https://addons.mozilla.org/en-US/firefox/addon/rested/), disponivel como um pluin em diversos browsers. O formato JSON a ser armazenado deve possuir a seguinte estrutura de chaves e valores. 
+
+
+```json
+{
+    "id": "dispositivo_001",
+    "location": [-22.597412, -43.289396],
+    "property": "TEMPERATURA",
+    "date": 1604520278.332991,
+    "value": 22.3
+}
+```
