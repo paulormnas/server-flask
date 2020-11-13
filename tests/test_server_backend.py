@@ -10,7 +10,7 @@ class AppTest(unittest.TestCase):
     def setUp(self):
         self.app = create_app(mode="test")
         self.app.testing = True
-        self.registers_path = path.realpath(path.join(path.curdir, '../registros/'))
+        self.registers_path = path.realpath(path.join(path.curdir, '..', 'registros'))
         self.dados_de_teste = {
             "id": "dispositivo_001",
             "location": [-22.597412, -43.289396],
