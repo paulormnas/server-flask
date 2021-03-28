@@ -5,12 +5,12 @@ from os import path
 
 def create_app(mode="development"):
     instance_path = path.join(
-        path.abspath(path.dirname(__file__)), "instance_%s" % mode
+        path.abspath(path.dirname(__file__)), "../%s_instance" % mode
     )
 
     app = Flask("simon-backend",
-                static_folder="/static/",
-                template_folder="/template/",
+                static_folder="static/",
+                template_folder="template/",
                 instance_path=instance_path,
                 instance_relative_config=True)
     app.config.from_pyfile('config.cfg')
