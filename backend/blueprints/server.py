@@ -31,6 +31,7 @@ def registrar_dados():
 
     return 'OK!'
 
+
 # @simon_server_blueprint.route('/verifica_dispositivo', methods=['GET'])
 # @cross_origin()
 # def verifica_assinatura():
@@ -40,9 +41,10 @@ def registrar_dados():
 #     else:
 #         return "invalid"
 
+
 @simon_server_blueprint.route('/gerar_chaves/<device_id>')
 @cross_origin()
-def verifica_assinatura(device_id):
+def gerar_chaves(device_id):
     keys = security.generate_key_pair(device_id)
     keys["pub_key"] = keys["pub_key"].decode("utf-8")
     keys["priv_key"] = keys["priv_key"].decode("utf-8")
