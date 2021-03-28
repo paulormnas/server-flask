@@ -15,8 +15,6 @@ simon_server_blueprint = Blueprint('simon-server-blueprint', __name__)
 @simon_server_blueprint.route('/index')
 @cross_origin()
 def index():
-    # return "Server funcionando"
-    # return send_from_directory("backend/template/", "index.html")
     return render_template("index.html")
 
 
