@@ -1,0 +1,24 @@
+body{
+	font-family: Roboto, "Helvetica Neue", sans-serif;
+  height: 100vh;
+	margin: 0px;
+	padding: 0px;
+}
+
+.titulo {
+	background: red;
+	height: 10em;
+	padding-bottom: 20px;
+	padding-top: 20px;
+
+}
+
+h1{
+	margin: auto;
+	text-align: center;
+}
+
+.texto {
+	font-size: 4em;
+  text-align: center;
+}
