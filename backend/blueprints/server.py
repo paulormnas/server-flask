@@ -32,14 +32,18 @@ def registrar_dados():
     return 'OK!'
 
 
-# @simon_server_blueprint.route('/verifica_dispositivo', methods=['GET'])
-# @cross_origin()
-# def verifica_assinatura():
-#     data = request.args.get('data')
-#     if security.verify_signature(data):
-#         return "valid"
-#     else:
-#         return "invalid"
+@simon_server_blueprint.route('/verifica_dispositivo', methods=['GET'])
+@cross_origin()
+def verifica_dispositivo():
+    # Verifica assinatura de um dispositivo e informa se e um dispositivo valido e cadastrado no sistema ou nao
+    device_id = request.args.get('device_id', 'None')
+    data = json.loads(request.args.get('data', 'None'))
+    signature = request.data
+
+    if device_id is None:
+        return 505
+    else:
+        return security.verify_signature(data, device_id, signature)
 
 
 @simon_server_blueprint.route('/gerar_chaves/<device_id>')

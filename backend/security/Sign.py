@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import configparser
 from datetime import datetime
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
@@ -8,8 +7,8 @@ from Crypto.Signature import pkcs1_15
 
 class Signature():
     '''
-    Classe para tratar as assinaturas RSA dos dispositivos e gerar chaves criptograficas.
-    Para o banco de dados de chaves dos dispositivos de IoT, o arquivo devera ser estruturado da seguinte maneira:
+    Objeto para tratar as assinaturas RSA dos dispositivos e gerar chaves criptograficas.
+    O arquivo para o banco de dados de chaves dos dispositivos de IoT, devera ser estruturado da seguinte maneira:
     {
         "id": "id_do_dispositivo",
         "date": "data_da_geraçao_da_chave",
@@ -22,8 +21,7 @@ class Signature():
     }
     '''
     def __init__(self):
-        self.config = configparser.ConfigParser()
-        self.config.read('config.ini')
+        pass
 
     def format_key_info(self, device_id, key_size, key_pem, key_algorithm="RSA", sign_algorithm="RSA_SHA-256", curve = None):
         key_info = {
@@ -39,6 +37,13 @@ class Signature():
         return key_info
 
     def generate_key_pair(self, device_id):
+        '''
+        Gera chaves criptograficas publica e privada, utilizando o algoritmo RSA, com tamanho fixo de 2048, escreve em arquivos e retorna as informaçoes.
+
+        :param:
+            device_id: identificaçao do dispositivo que sera utilizado no nome dos arquivos .pem
+        :return: um dicionario com chaves publica e privada e informaçoes das chaves para armazenamento em banco de dados
+        '''
         key_size = 2048
         priv_key = RSA.generate(key_size)
         priv_key_pem = priv_key.export_key('PEM')
@@ -56,36 +61,40 @@ class Signature():
                 "key_info": key_info}
 
     def sign(self, dados):
+        '''Assina os dados recebidos como paramentro e retorna a assiantura em bytes'''
+
         convert = str(dados)   #Converte o dicionario em uma string para poder ser em seguida convertido em bytes.
-        bite_mensage = convert.encode()   #Converte a string em bytes para poder gerar o Hash.
-        h = SHA256.new(bite_mensage)   #Gera o Hash da mensagem
-        print(h.hexdigest())
-        key_path = self.config.get('keys','private_key')
+        byte_message = convert.encode()   #Converte a string em bytes para poder gerar o Hash.
+        h = SHA256.new(byte_message)   #Gera o Hash da mensagem
+        key_path = "SiMon-standard_priv_key.pem"
         key = RSA.import_key(open(key_path).read())
         assinatura = pkcs1_15.new(key).sign(h)
-        print(assinatura)
         return assinatura
     
-    def verify_signature(self, dados):
+    def verify_signature(self, dados, device_id, signature):
+        '''
+        Verifica a assinatura dos dados de acordo com a chave publica correspondente ao id do dispositivo
 
-        if dados is isinstance(dict):
-            copia = dados   #Copia o dicionario original para fazer as operacoes de comparacao sem alterar o original
-            original = dados.get("signature")   #Armazena o valor do campo signature para ser usada na comparacao de chaves
-            key_path = self.config.get('keys','private_key')
-            key = RSA.import_key(open(key_path).read())
-            copia.pop("signature")   #Remove o campo de assinatura da copia para poder gerar um novo hash para comparacao
-            convert = str(copia)   #Converte o dicionario copiado em uma string para poder ser em seguida convertido em bytes.
-            bite_mensage = convert.encode()   #Converte a string em bytes para poder gerar o Hash.
-            h = SHA256.new(bite_mensage)   #Gera o Hash da mesagem
-            key_path = self.config.get('keys','public_key')
-            key = RSA.import_key(open(key_path).read())
-            assinatura = pkcs1_15.new(key).sign(h)
-            assinatura = str(assinatura)
-            if assinatura == original:
-                print("A assinatura e valida")
-                return True
-            else:
-                print("Assinatura invalida")
-                return False
+        :param:
+            dados: dicionario com os dados que foram assinados
+            device_id: id do dispositivo
+            signature: assinatura dos dados feita pelo dispositivo
+
+        :return: string "valid" caso a assinatura seja valida ou "invalid" caso a assinatura nao seja valida
+        '''
+        copy = dados   # Copia o dicionario original para fazer as operacoes de comparacao sem alterar o original
+        convert = str(copy)   # Converte o dicionario copiado em uma string para em seguida ser convertido em bytes.
+        byte_message = convert.encode()   # Converte a string em bytes para poder gerar o Hash.
+        h = SHA256.new(byte_message)   # Gera o Hash da mesagem
+        key_path = device_id + "_public_key.pem"    # Informa o caminho para a chave publica a ser verificada
+        key = RSA.import_key(open(key_path).read()) # Le a informaçao da chave publica
+        try:
+            pkcs1_15.new(key).verify(h, signature)  # Verifica assinatura a partir do Hash e da chave informados
+        except ValueError:
+            print("Assinatura invalida") # Caso ocorra uma exceçao, a assinatura nao e valida
+            return "invalid"
+        else:
+            print("A assinatura e valida")
+            return "valid"
 
 
