@@ -70,8 +70,9 @@ class AppTest(unittest.TestCase):
         # Testa rota de verificaçao de assinatura para chave publica correta
         with self.app.test_client() as client:
             assinatura = self.dados_de_teste_assinados["signature"]
-            data = json.dumps(self.dados_de_teste)
-            response = client.get('/verifica_dispositivo?device_id={}&data={}'.format(self.std_device_id, data),
+            dados = json.dumps(self.dados_de_teste)
+            print(dados)
+            response = client.get('/verifica_dispositivo?device_id={}&data={}'.format(self.std_device_id, dados),
                                   data=assinatura)
             self.assertEqual(200, response.status_code)
             verification_response = response.data.decode("utf-8")
@@ -81,9 +82,20 @@ class AppTest(unittest.TestCase):
         # Testa rota de verificaçao de assinatura para chave publica incorreta
         with self.app.test_client() as client:
             assinatura = self.dados_de_teste_assinados["signature"]
-            data = json.dumps(self.dados_de_teste)
-            response = client.get('/verifica_dispositivo?device_id=SiMon-meter&data={}'.format(data),
+            dados = json.dumps(self.dados_de_teste)
+            response = client.get('/verifica_dispositivo?device_id=SiMon-meter&data={}'.format(dados),
                                   data=assinatura)
             self.assertEqual(200, response.status_code)
             verification_response = response.data.decode("utf-8")
             self.assertEqual("invalid", verification_response)
+
+    def test_assinatura(self):
+        # Testa rota de assinar dados
+
+        with self.app.test_client() as client:
+            dados = json.dumps(self.dados_de_teste)
+            response = client.get('/sign', data=dados)
+            self.assertEqual(200, response.status_code)
+            signed_data = response.data
+            assinatura = self.dados_de_teste_assinados["signature"]
+            self.assertEqual(assinatura, signed_data)

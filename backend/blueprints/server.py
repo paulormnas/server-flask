@@ -32,7 +32,7 @@ def registrar_dados():
     return 'OK!'
 
 
-@simon_server_blueprint.route('/verifica_dispositivo', methods=['GET'])
+@simon_server_blueprint.route('/verifica_dispositivo', methods=['GET', 'POST'])
 @cross_origin()
 def verifica_dispositivo():
     # Verifica assinatura de um dispositivo e informa se e um dispositivo valido e cadastrado no sistema ou nao
@@ -46,7 +46,7 @@ def verifica_dispositivo():
         return security.verify_signature(data, device_id, signature)
 
 
-@simon_server_blueprint.route('/gerar_chaves/<device_id>')
+@simon_server_blueprint.route('/gerar_chaves/<device_id>', methods=['GET', 'POST'])
 @cross_origin()
 def gerar_chaves(device_id):
     keys = security.generate_key_pair(device_id)
@@ -55,3 +55,11 @@ def gerar_chaves(device_id):
     keys.pop("key_info")
     keys_json = json.dumps(keys)
     return keys_json
+
+@simon_server_blueprint.route('/sign', methods=['GET', 'POST'])
+@cross_origin()
+def assina():
+    data = json.loads(request.data)
+    return security.sign(data)
+
+
