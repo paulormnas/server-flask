@@ -13,14 +13,14 @@ class AppTest(unittest.TestCase):
         self.app = create_app(mode="test")
         self.app.static_folder = "../static"
         self.app.template_folder = "../template"
-        self.registers_path = path.realpath(path.join(path.curdir, '..', 'registros'))
+        self.registers_path = path.realpath(path.join(path.curdir, "..", "registros"))
         self.std_device_id = "SiMon-standard"
         self.dados_de_teste = {
             "id": "dispositivo_001",
             "location": [-22.597412, -43.289396],
             "property": "TEMPERATURA",
             "date": 1604520278.332991,
-            "value": 22.3
+            "value": 22.3,
         }
 
         security = Signature()
@@ -30,20 +30,22 @@ class AppTest(unittest.TestCase):
 
     def test_da_rota_registrar_dados(self):
         # Faz assert da rota
-        with self.app.test_request_context('/registrar_dados'):
-            self.assertEqual(request.path, '/registrar_dados')
+        with self.app.test_request_context("/registrar_dados"):
+            self.assertEqual(request.path, "/registrar_dados")
 
     def test_de_resposta_da_rota_raiz(self):
         # Utiliza contexto de cliente para uma requisiçao GET na raiz (/) e confere as respostas do serviço
         with self.app.test_client() as client:
-            response = client.get('/')
+            response = client.get("/")
             self.assertEqual(HTTPStatus.OK, response.status_code)
 
     def test_de_envio_de_dados_na_rota_registrar_dados(self):
         # Verifica se a quantidade de arquivos na pasta "registros" esta maior apos o envio de dados via POST
         quantidade_inicial_arquivos = len(os.listdir(self.registers_path))
         with self.app.test_client() as client:
-            response = client.post('/registrar_dados', data=json.dumps(self.dados_de_teste))
+            response = client.post(
+                "/registrar_dados", data=json.dumps(self.dados_de_teste)
+            )
             self.assertEqual(HTTPStatus.OK, response.status_code)
 
         quantidade_final_arquivos = len(os.listdir(self.registers_path))
@@ -53,14 +55,14 @@ class AppTest(unittest.TestCase):
         # Testa rota de geraçao de chaves sem informar id do dispositivo
 
         with self.app.test_client() as client:
-            response = client.get('/gerar_chaves/')
+            response = client.get("/gerar_chaves/")
             self.assertEqual(HTTPStatus.NOT_FOUND, response.status_code)
 
     def test_gerar_chaves_com_id_do_dispositivo(self):
         # Testa rota de geraçao de chaves informando id do dispositivo
 
         with self.app.test_client() as client:
-            response = client.get('/gerar_chaves/{}'.format(self.std_device_id))
+            response = client.get("/gerar_chaves/{}".format(self.std_device_id))
             self.assertEqual(HTTPStatus.OK, response.status_code)
             keys_json = response.data
             keys = json.loads(keys_json)
@@ -72,8 +74,12 @@ class AppTest(unittest.TestCase):
             assinatura = self.dados_de_teste_assinados["signature"]
             dados = json.dumps(self.dados_de_teste)
             print(dados)
-            response = client.get('/verifica_dispositivo?device_id={}&data={}'.format(self.std_device_id, dados),
-                                  data=assinatura)
+            response = client.get(
+                "/verifica_dispositivo?device_id={}&data={}".format(
+                    self.std_device_id, dados
+                ),
+                data=assinatura,
+            )
             self.assertEqual(HTTPStatus.OK, response.status_code)
             verification_response = response.data.decode("utf-8")
             self.assertEqual("valid", verification_response)
@@ -83,8 +89,10 @@ class AppTest(unittest.TestCase):
         with self.app.test_client() as client:
             assinatura = self.dados_de_teste_assinados["signature"]
             dados = json.dumps(self.dados_de_teste)
-            response = client.get('/verifica_dispositivo?device_id=SiMon-meter&data={}'.format(dados),
-                                  data=assinatura)
+            response = client.get(
+                "/verifica_dispositivo?device_id=SiMon-meter&data={}".format(dados),
+                data=assinatura,
+            )
             self.assertEqual(HTTPStatus.OK, response.status_code)
             verification_response = response.data.decode("utf-8")
             self.assertEqual("invalid", verification_response)
@@ -93,7 +101,7 @@ class AppTest(unittest.TestCase):
         # Testa rota de assinar dados
         with self.app.test_client() as client:
             dados = json.dumps(self.dados_de_teste)
-            response = client.get('/sign', data=dados)
+            response = client.get("/sign", data=dados)
             self.assertEqual(HTTPStatus.OK, response.status_code)
             signed_data = response.data
             assinatura = self.dados_de_teste_assinados["signature"]
