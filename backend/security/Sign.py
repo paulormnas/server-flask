@@ -20,20 +20,29 @@ class Signature(object):
         "key_pem": "chave publica no formato PEM"
     }
     """
+
     def __init__(self):
         pass
 
-    def format_key_info(self, device_id, key_size, key_pem, key_algorithm="RSA", sign_algorithm="RSA_SHA-256", curve = None):
+    def format_key_info(
+        self,
+        device_id,
+        key_size,
+        key_pem,
+        key_algorithm="RSA",
+        sign_algorithm="RSA_SHA-256",
+        curve=None,
+    ):
         key_info = {
-                    "id": device_id,
-                    "date": datetime.now().timestamp(),
-                    "key_algorithm": key_algorithm,
-                    "size": key_size,
-                    "curve": curve,
-                    "sign_algorithm": sign_algorithm,
-                    "status": "active",
-                    "key_pem": key_pem
-                }
+            "id": device_id,
+            "date": datetime.now().timestamp(),
+            "key_algorithm": key_algorithm,
+            "size": key_size,
+            "curve": curve,
+            "sign_algorithm": sign_algorithm,
+            "status": "active",
+            "key_pem": key_pem,
+        }
         return key_info
 
     def generate_key_pair(self, device_id):
@@ -46,19 +55,19 @@ class Signature(object):
         """
         key_size = 2048
         priv_key = RSA.generate(key_size)
-        priv_key_pem = priv_key.export_key('PEM')
-        with open(device_id + '_priv_key.pem', 'wb') as f:
+        priv_key_pem = priv_key.export_key("PEM")
+        with open(device_id + "_priv_key.pem", "wb") as f:
             f.write(priv_key_pem)
 
         pub_key = priv_key.public_key()
-        pub_key_pem = pub_key.export_key('PEM')
-        with open(device_id + '_public_key.pem', 'wb') as f:
+        pub_key_pem = pub_key.export_key("PEM")
+        with open(device_id + "_public_key.pem", "wb") as f:
             f.write(pub_key_pem)
 
-        key_info = self.format_key_info(device_id=device_id, key_size=key_size, key_pem=pub_key_pem)
-        return {"priv_key": priv_key_pem,
-                "pub_key": pub_key_pem,
-                "key_info": key_info}
+        key_info = self.format_key_info(
+            device_id=device_id, key_size=key_size, key_pem=pub_key_pem
+        )
+        return {"priv_key": priv_key_pem, "pub_key": pub_key_pem, "key_info": key_info}
 
     def sign(self, dados):
         """Assina os dados recebidos como paramentro e retorna a assiantura em bytes"""
@@ -70,7 +79,7 @@ class Signature(object):
         key = RSA.import_key(open(key_path).read())
         assinatura = pkcs1_15.new(key).sign(h)
         return assinatura
-    
+
     def verify_signature(self, dados, device_id, signature):
         """
         Verifica a assinatura dos dados de acordo com a chave publica correspondente ao id do dispositivo
@@ -90,12 +99,14 @@ class Signature(object):
         key = RSA.import_key(open(key_path).read())
 
         try:
-            pkcs1_15.new(key).verify(h, signature)  # Verifica assinatura a partir do Hash e da chave informados
+            pkcs1_15.new(key).verify(
+                h, signature
+            )  # Verifica assinatura a partir do Hash e da chave informados
         except ValueError:
-            print("Assinatura invalida") # Caso ocorra uma exceçao, a assinatura nao e valida
+            print(
+                "Assinatura invalida"
+            )  # Caso ocorra uma exceçao, a assinatura nao e valida
             return "invalid"
         else:
             print("A assinatura e valida")
             return "valid"
-
-
