@@ -15,6 +15,30 @@
 	<br>
 	<br>
 	<p>Pagina de teste do servidor simon</p>
+        <section class="principal">
+            <div>
+                <h2>Quantas medições ?</h2>
+
+                <div class="container-btn">
+
+                    <input id="num_medicao" type="number" min="1" max="20" class="btn verde">
+                    <input id="intervalo" type="number" min="1" max="20" class="btn verde">
+                    <button id="start_btn">start</button>
+                    <button id="pause_btn">pause</button>
+                    <button id="stop_btn">stop</button>
+                    <button id="restart_btn">restart</button>
+                    <script src="../static/js/websocket.js" type="text/javascript"></script>
+                </div>
+            </div>
+            <spam class="output">
+                <output></output>
+            </spam>
+            <spam calass ="box">
+            <div class="server">
+                <server></server>
+            </div>
+            </spam>
+        </section>
 </div>
 
 </body>
