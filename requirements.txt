@@ -13,5 +13,6 @@ pycryptodome==3.14.1
 six==1.16.0
 tomli==2.0.1
 typing_extensions==4.2.0
+websockets==10.3
 Werkzeug==2.1.2
 zipp==3.8.0
